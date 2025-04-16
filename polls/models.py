@@ -2,10 +2,25 @@ from django.db import models
 import datetime
 from django.utils import timezone
 from django.contrib import admin 
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published")
+    code = models.CharField(
+        max_length=8,
+        unique=True,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex='^[a-zA-Z]+$',
+                message='Code must only contain letters (no numbers, symbols, or spaces).',
+            )
+        ],
+        help_text="Enter a unique 8 Character code",
+    )
 
     def __str__(self):
         return self.question_text
@@ -27,3 +42,4 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
+    
