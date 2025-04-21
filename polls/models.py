@@ -15,8 +15,8 @@ class Question(models.Model):
         null=True,
         validators=[
             RegexValidator(
-                regex='^[a-zA-Z]+$',
-                message='Code must only contain letters (no numbers, symbols, or spaces).',
+                regex="^[a-zA-Z]+$",
+                message="Code must only contain letters (no numbers, symbols, or spaces).",
             )
         ],
         help_text="Enter a unique 8 Character code",
