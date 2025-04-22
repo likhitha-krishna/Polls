@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.views import APIView
 #from rest_framework.exceptions import NotFound
@@ -5,6 +6,12 @@ from rest_framework.response import Response
 from .models import Question,Choice
 from .serializers import QuestionSerializer , ChoiceSerializer
 from django.shortcuts import get_object_or_404
+
+def welcome(request):
+    response_data = """
+    <h1> Welcome to my POLLS project</h1>
+    <a href="/polls/questions">Question</a>"""
+    return HttpResponse(response_data)
 
 class QuestionList(APIView):
     """

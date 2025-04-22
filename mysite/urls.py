@@ -18,7 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("polls/",include("polls.urls")),
+    path("",include("polls.urls")),  
 ] 
+
+#if u want routing should start with /polls/
+#path("polls",include("polls.urls"))
