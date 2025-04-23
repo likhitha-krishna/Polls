@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config( 
-        default='postgresql://likhitha:bQiLFFcA8SHF32kfNFXjNxf2LPwVQ7ek@dpg-d04d6druibrs73avspkg-a/polls_wfpj',        
+        default='postgresql://postgres:likhitha@localhost:5432/polls_db',        
         conn_max_age=600   
     )
 }
