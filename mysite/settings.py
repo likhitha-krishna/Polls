@@ -130,4 +130,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 INTERNAL_IPS = [
     "127.0.0.1"
 ]
-ALLOWED_HOSTS = ['polls-yupp.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['polls-1-yiht.onrender.com', 'localhost', '127.0.0.1']
