@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 def welcome(request):
     response_data = """
     <h1> Welcome to my POLLS project</h1>
-    <a href="/polls/questions">Question</a>"""
+    <a href="/questions">Question</a>"""
     return HttpResponse(response_data)
 
 class QuestionList(APIView):
