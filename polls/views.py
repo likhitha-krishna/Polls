@@ -39,7 +39,7 @@ class QuestionDetail(APIView):
 
         question_data = {
             "question_text" : question.question_text,
-            "pub_date" : question.pub_date,
+            "published_date" : question.published_date,
             "choices" : ChoiceSerializer(choices,many=True).data    #.data gives you the final Python list of dictionaries
         }
 

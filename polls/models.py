@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField("date published")
+    published_date = models.DateTimeField(default=timezone.now) 
     code = models.CharField(
         max_length=8,
         unique=True,
@@ -27,13 +27,13 @@ class Question(models.Model):
     
     @admin.display(
             boolean = True,     # Show a ✅ or ❌ in admin (instead of True/False)
-            ordering = "pub_date",      # Allows sorting the column using pub_date
+            ordering = "published_date",      # Allows sorting the column using published_date
             description = "Published recently?",    # Custom column title
     )
     
     def was_published_recently(self):
         now = timezone.now()
-        return now - datetime.timedelta(days=1) <= self.pub_date <= now
+        return now - datetime.timedelta(days=1) <= self.published_date <= now
     
 class Choice(models.Model):
     question=models.ForeignKey(Question, on_delete=models.CASCADE)

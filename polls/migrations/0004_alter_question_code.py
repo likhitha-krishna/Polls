@@ -16,4 +16,9 @@ class Migration(migrations.Migration):
             name='code',
             field=models.CharField(blank=True, help_text='Enter a unique 8 Character code', max_length=8, null=True, unique=True, validators=[django.core.validators.RegexValidator(message='Code must only contain letters (no numbers, symbols, or spaces).', regex='^[a-zA-Z]+$')]),
         ),
+        migrations.RenameField(
+            model_name="question",
+            old_name="pub_date",
+            new_name="published_date",
+        )
     ]
