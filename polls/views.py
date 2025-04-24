@@ -75,7 +75,7 @@ class QuestionCreate(APIView):
     def post (self, request):
         serializer = QuestionSerializer(data=request.data) #request.data is user filled data
 
-        if Question.objects.filter(question_text=request.data["question_text"]).exists():
+        if Question.objects.filter(question_text=request.get["question_text"]).exists():
             return Response("This question already exists",status=status.HTTP_400_BAD_REQUEST)
         
         if serializer.is_valid():
