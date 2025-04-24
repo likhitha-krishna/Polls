@@ -7,10 +7,14 @@ from .models import Question,Choice
 from .serializers import QuestionSerializer , ChoiceSerializer
 from django.shortcuts import get_object_or_404
 
-def welcome(request):
+def home(request):
     response_data = """
-    <h1> Welcome to my POLLS project</h1>
-    <a href="/questions">Question</a>"""
+    <h1><b> Welcome to my POLLS project</b></h1>
+    <h2>Please select an options below to continue :</h2>
+    <a href="/questions/">List of Questions</a><br>
+    <a href="/question/<str:code>/">View Question</a><br>
+    <a href="/vote/">Do Vote</a><br>
+    <a href="/results/<str:code>/">Show result</a>"""
     return HttpResponse(response_data)
 
 class QuestionList(APIView):
