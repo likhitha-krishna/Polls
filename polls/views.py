@@ -6,6 +6,13 @@ from rest_framework.response import Response
 from .models import Question,Choice
 from .serializers import QuestionSerializer , ChoiceSerializer
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import AllowAny
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdminOrReadOnly
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAdminUser
 
 def home(request):
     response_data = """
@@ -21,6 +28,8 @@ class QuestionList(APIView):
     """
     List of all question
     """
+    permission_classes=[IsAdminOrReadOnly]
+
     def get(self,request):
         questions = Question.objects.all()
         serializer = QuestionSerializer(questions,many=True)
@@ -75,7 +84,7 @@ class QuestionCreate(APIView):
     """
     Create a new question with a unique code.
     """
-
+    permission_classes =[IsAdminUser]
     def post (self, request):
         serializer = QuestionSerializer(data=request.data) #request.data is user filled data
 
@@ -91,6 +100,8 @@ class VoteAPIView(APIView):
     """
     Allow users to vote for choice
     """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self,request):
         #choice_id = request.data.get("choice_id")
@@ -136,3 +147,29 @@ class ResultsView(APIView):
         choices=unique_code.choice_set.all().order_by("votes")
         serializer = ChoiceSerializer(choices,many=True)
         return Response(serializer.data)
+
+class UserRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self,request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        email = request.data.get("email")
+
+        if not username or not password or not email:
+            return Response({"error":"username,password and email are required."},status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(username=username).exists():
+            return Response ({"error":"username already exists"},status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(username=username,password=password,email=email)
+        user.save()
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        return Response({
+            "message":"User created successfully.",
+            "access_token":access_token,
+            "refresh_token":str(refresh)
+        },status=status.HTTP_201_CREATED)
+                                    
