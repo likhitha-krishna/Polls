@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 #from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from .models import Question,Choice
-from .serializers import QuestionSerializer , ChoiceSerializer
+from .serializers import QuestionSerializer , ChoiceSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
@@ -24,10 +24,35 @@ def home(request):
     <a href="/results/<str:code>/">Show result</a>"""
     return HttpResponse(response_data)
 
+class UserRegistrationView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+
+    def post(self,request):
+        serializer = UserSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            user = serializer.save()
+
+            # Generate JWT tokens for the new user
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+            return Response({
+                "message":"User created successfully.",
+                "access_token":access_token,
+                "refresh_token":str(refresh)
+            },status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+                                    
+
 class QuestionList(APIView):
     """
     List of all question
     """
+
+    serializer_class = QuestionSerializer
     permission_classes=[IsAdminOrReadOnly]
 
     def get(self,request):
@@ -41,24 +66,36 @@ class QuestionDetail(APIView):
     Retrieve, update or delete a question by it's unique code along with choices.
     """
 
+    serializer_class = QuestionSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]  # Allow all authenticated users to view
+        return [IsAdminUser()]  # Only admin users can update or delete
+    
     def get(self,request,code):
+        
         try:
             question = Question.objects.get(code=code)
         except Question.DoesNotExist:
-            return Response("No such question with provided code")
+            return Response("No such question with provided code",status=status.HTTP_404_NOT_FOUND)
             # NotFound(detail="No such question with provided code")
 
-        choices = question.choice_set.all()
+        # choices = question.choice_set.all()
 
-        question_data = {
-            "question_text" : question.question_text,
-            "published_date" : question.published_date,
-            "choices" : ChoiceSerializer(choices,many=True).data    #.data gives you the final Python list of dictionaries
-        }
+        # question_data = {
+        #     "question_text" : question.question_text,
+        #     "published_date" : question.published_date,
+        #     "choices" : ChoiceSerializer(choices,many=True).data    #.data gives you the final Python list of dictionaries
+        # }
 
-        return Response(question_data)
+        # return Response(question_data)
+
+        serializer = QuestionSerializer(question)
+        return Response(serializer.data)
     
     def patch(self,request,code):
+        
         try:
             question = Question.objects.get(code=code)
         except Question.DoesNotExist:
@@ -71,6 +108,7 @@ class QuestionDetail(APIView):
         return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self,request,code):
+        
         try:
             question = Question.objects.get(code=code)
         except Question.DoesNotExist:
@@ -84,6 +122,8 @@ class QuestionCreate(APIView):
     """
     Create a new question with a unique code.
     """
+    serializer_class = QuestionSerializer
+
     permission_classes =[IsAdminUser]
     def post (self, request):
         serializer = QuestionSerializer(data=request.data) #request.data is user filled data
@@ -102,6 +142,8 @@ class VoteAPIView(APIView):
     """
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    serializer_class = ChoiceSerializer
+
 
     def post(self,request):
         #choice_id = request.data.get("choice_id")
@@ -138,38 +180,14 @@ class ResultsView(APIView):
     """
     Retrieving result of  list of all choices sorted by vote count using unique code
     """
-
+    serializer_class = ChoiceSerializer
     def get(self,request,code):
         try:
             unique_code=Question.objects.get(code=code)
         except Question.DoesNotExist:
-            return Response("No such question with provided code")
+            return Response("No such question with provided code",status=status.HTTP_404_NOT_FOUND)
+        
         choices=unique_code.choice_set.all().order_by("votes")
         serializer = ChoiceSerializer(choices,many=True)
         return Response(serializer.data)
 
-class UserRegistrationView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self,request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        email = request.data.get("email")
-
-        if not username or not password or not email:
-            return Response({"error":"username,password and email are required."},status=status.HTTP_400_BAD_REQUEST)
-        if User.objects.filter(username=username).exists():
-            return Response ({"error":"username already exists"},status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.create_user(username=username,password=password,email=email)
-        user.save()
-
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-
-        return Response({
-            "message":"User created successfully.",
-            "access_token":access_token,
-            "refresh_token":str(refresh)
-        },status=status.HTTP_201_CREATED)
-                                    

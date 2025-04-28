@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 MIDDLEWARE = [
@@ -146,7 +148,19 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 ALLOWED_HOSTS = ['polls-1-yiht.onrender.com', 'localhost', '127.0.0.1']
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES":(
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ],
+    "DEFAULT_SCHEMA_CLASS":"drf_spectacular.openapi.AutoSchema",
+    
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE" : "Mysite Polls API",
+    "DESCRIPTION" : "API for managing and voting on polls in the Mysite project.",
+    "VERSION" : "1.0.0",
+    "SERVE_INCLUDE_SCHEMA" : False,
+    "SWAGGER_UI_DIST" : "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF" : "SIDECAR",
+    "REDOC_DIST" : "SIDECAR",
 }
