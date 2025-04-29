@@ -18,8 +18,8 @@ def home(request):
     response_data = """
     <h1><b> Welcome to my POLLS project</b></h1>
     <h2>Please select an options below to continue :</h2>
-    <a href="/questions/">List of Questions</a><br>
-    <a href="/question/<str:code>/">View Question</a><br>
+    <a href="/questions-list/">List of Questions</a><br>
+    <a href="/view-question/<str:code>/">View Question</a><br>
     <a href="/vote/">Do Vote</a><br>
     <a href="/results/<str:code>/">Show result</a>"""
     return HttpResponse(response_data)
