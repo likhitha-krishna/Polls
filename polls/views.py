@@ -21,7 +21,9 @@ def home(request):
     <a href="/questions-list/">List of Questions</a><br>
     <a href="/view-question/<str:code>/">View Question</a><br>
     <a href="/vote/">Do Vote</a><br>
-    <a href="/results/<str:code>/">Show result</a>"""
+    <a href="/results/<str:code>/">Show result</a>
+    <h2>Please register here to access specified options :</h2>
+    <a href="/register/">Register here</a><br>"""
     return HttpResponse(response_data)
 
 class UserRegistrationView(APIView):
