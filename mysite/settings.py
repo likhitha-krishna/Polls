@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "rest_framework_simplejwt.token_blacklist",
+    "users",
 ]
 
 MIDDLEWARE = [

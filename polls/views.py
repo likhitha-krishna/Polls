@@ -4,11 +4,9 @@ from rest_framework.views import APIView
 #from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from .models import Question,Choice
-from .serializers import QuestionSerializer , ChoiceSerializer, UserSerializer
+from .serializers import QuestionSerializer , ChoiceSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
-from django.contrib.auth.models import User
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -17,37 +15,16 @@ from rest_framework.permissions import IsAdminUser
 def home(request):
     response_data = """
     <h1><b> Welcome to my POLLS project</b></h1>
+    <h2>Please register here to access specified options :</h2>
+    <a href="/register/">Register here</a><br>
     <h2>Please select an options below to continue :</h2>
     <a href="/questions-list/">List of Questions</a><br>
     <a href="/view-question/<str:code>/">View Question</a><br>
     <a href="/vote/">Do Vote</a><br>
     <a href="/results/<str:code>/">Show result</a>
-    <h2>Please register here to access specified options :</h2>
-    <a href="/register/">Register here</a><br>"""
+    """
     return HttpResponse(response_data)
 
-class UserRegistrationView(APIView):
-    permission_classes = [AllowAny]
-    serializer_class = UserSerializer
-
-    def post(self,request):
-        serializer = UserSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            user = serializer.save()
-
-            # Generate JWT tokens for the new user
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-
-            return Response({
-                "message":"User created successfully.",
-                "access_token":access_token,
-                "refresh_token":str(refresh)
-            },status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-                                    
 
 class QuestionList(APIView):
     """

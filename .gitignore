@@ -1,0 +1,29 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Ignore env folders
+env/
+venv/
+ENV/
+.venv/
+
+# Ignore VSCode settings (optional)
+.vscode/
+
+# Ignore Django static/media files
+/static/
+/media/
+
+# Ignore test and coverage
+.coverage
+htmlcov/
+*.log
+
+# Ignore compiled files
+*.egg-info/
+*.egg
+
+# Ignore migrations if you don't want to track them (optional)
+# **/migrations/
