@@ -17,3 +17,5 @@ tzdata==2025.2
 uvicorn==0.34.2
 virtualenv==20.30.0
 virtualenvwrapper-win==1.2.7
+djangorestframework-simplejwt
+
