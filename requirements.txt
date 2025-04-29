@@ -19,5 +19,6 @@ virtualenv==20.30.0
 virtualenvwrapper-win==1.2.7
 djangorestframework-simplejwt
 drf_spectacular
+drf_spectacular_sidecar
 
 
