@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib import admin 
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
@@ -43,3 +44,11 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice_text
     
+User = get_user_model()    #to get current user model, helps in custom model
+class Vote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice,on_delete=models.CASCADE)
+    voted_at = models.DateTimeField(auto_now_add=True)  #current time
+
+class Meta:
+    unique_together = ("user","choice")        

@@ -1,11 +1,20 @@
 from rest_framework import serializers
-from .models import Question,Choice
+from .models import Question,Choice, Vote
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 class ChoiceSerializer(serializers.ModelSerializer):
+    voters = serializers.SerializerMethodField()
+
     class Meta:
         model = Choice
-        fields = ["id","choice_text","votes"]
+        fields = ["id","choice_text","votes", "voters"]
+
+    def get_voters(self,obj):
+        votes = Vote.objects.filter(choice=obj)
+        return [vote.user.username for vote in votes]
+
 
 class QuestionSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True, source ="choice_set")
@@ -20,4 +29,22 @@ class QuestionSerializer(serializers.ModelSerializer):
         for choice in choices_data:
             Choice.objects.create(question=question,**choice)
         return question
-    
+
+
+class VoteSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    total_votes_for_question = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Vote
+        fields = ["id","user","choice","username","total_votes_for_question"]
+
+    def get_username(self,obj):
+        if obj.user:
+            return obj.user.username
+        return None
+        
+    def get_total_votes_for_question(self,obj):
+        question = obj.choice.question
+        total_votes = Vote.objects.filter(choice__question=question).count()
+        return total_votes

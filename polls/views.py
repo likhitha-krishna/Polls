@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 #from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from .models import Question,Choice
+from .models import Question,Choice, Vote
 from .serializers import QuestionSerializer , ChoiceSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -21,7 +21,8 @@ def home(request):
     <a href="/questions-list/">List of Questions</a><br>
     <a href="/view-question/<str:code>/">View Question</a><br>
     <a href="/vote/">Do Vote</a><br>
-    <a href="/results/<str:code>/">Show result</a>
+    <a href="/results/">Show result</a><br>
+    <a href="/result/<str:code>/">Show Code Based result</a>
     """
     return HttpResponse(response_data)
 
@@ -134,6 +135,15 @@ class VoteAPIView(APIView):
         #case insensitive match
         choice = get_object_or_404(Choice,choice_text__iexact=choice_text)
 
+        # Check if the user has already voted for this choice
+        user = request.user  # Get the authenticated user
+        if Vote.objects.filter(user=user, choice=choice).exists():
+            return Response({"error": "You have already voted for this choice."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create a new Vote instance
+        vote = Vote.objects.create(user=user, choice=choice)
+
+
         choice.votes += 1
         choice.save()
 
@@ -151,10 +161,12 @@ class ResultsView(APIView):
     """
     Return a list of all choices sorted by vote count
     """
-    # def get(self,request):
-    #     choices=Choice.objects.all().order_by("votes")
-    #     serializer = ChoiceSerializer(choices,many=True)
-    #     return Response(serializer.data)
+    def get(self,request):
+        questions = Question.objects.all()
+        serializer = QuestionSerializer(questions,many=True)
+        return Response(serializer.data)
+
+class CodeBasedResultView(APIView):
 
     """
     Retrieving result of  list of all choices sorted by vote count using unique code

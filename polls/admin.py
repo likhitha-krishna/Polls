@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Choice , Question
+from .models import Choice , Question, Vote
 
 class ChoiceInline (admin.TabularInline):
     model = Choice
@@ -17,3 +17,13 @@ class QuestionAdmin (admin.ModelAdmin):
     inlines = [ChoiceInline]
 admin.site.register(Question, QuestionAdmin)
 
+class VoteAdmin (admin.ModelAdmin):
+    list_display = ["get_username","get_question","choice"]
+    def get_username(self,obj):
+        return obj.user.username
+    get_username.short_description = "Username"
+    def get_question(self,obj):
+        return obj.choice.question.question_text
+    get_question.short_description = "Question"
+    
+admin.site.register(Vote,VoteAdmin)
