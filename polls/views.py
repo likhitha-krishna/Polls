@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAdminUser
+from rest_framework.pagination import LimitOffsetPagination
 
 
 def home(request):
@@ -36,14 +37,28 @@ class QuestionList(APIView):
     """
     List of all question
     """
+    # serializer_class = QuestionSerializer
+    # permission_classes=[IsAdminOrReadOnly]
+
+    # def get(self,request):
+
+    #     questions = Question.objects.all()
+    #     serializer = QuestionSerializer(questions,many=True)
+    #     return Response(serializer.data)   
+
     serializer_class = QuestionSerializer
-    permission_classes=[IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
 
     def get(self,request):
-
         questions = Question.objects.all()
-        serializer = QuestionSerializer(questions,many=True)
-        return Response(serializer.data)   
+        
+        #add pagination
+
+        paginator = LimitOffsetPagination()
+        result_page = paginator.paginate_queryset(questions,request)
+        serializer = QuestionSerializer(result_page,many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
 
 class QuestionDetail(APIView):
@@ -225,7 +240,7 @@ class VoteFilter(APIView):
         queryset = Vote.objects.all()
 
         if username:
-            queryset=queryset.filter(user__username=username)        #     queryset=queryset.filter(choice__choice_text=choice)
+            queryset=queryset.filter(user__username=username)        
         serializer = VoteSerializer(queryset,many=True)
         return Response(serializer.data)
 
