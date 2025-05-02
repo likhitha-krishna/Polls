@@ -7,6 +7,7 @@ User = get_user_model()
 class ChoiceSerializer(serializers.ModelSerializer):
     voters = serializers.SerializerMethodField()
 
+
     class Meta:
         model = Choice
         fields = ["id","choice_text","votes", "voters"]
@@ -34,10 +35,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 class VoteSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
     total_votes_for_question = serializers.SerializerMethodField()
-
+    question_text = serializers.CharField(source="choice.question.question_text")
     class Meta:
         model = Vote
-        fields = ["id","user","choice","username","total_votes_for_question"]
+        fields = ["id","question_text","username","total_votes_for_question"]
 
     def get_username(self,obj):
         if obj.user:

@@ -4,13 +4,14 @@ from rest_framework.views import APIView
 #from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from .models import Question,Choice, Vote
-from .serializers import QuestionSerializer , ChoiceSerializer
+from .serializers import QuestionSerializer , ChoiceSerializer, VoteSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAdminOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAdminUser
+
 
 def home(request):
     response_data = """
@@ -22,7 +23,11 @@ def home(request):
     <a href="/view-question/<str:code>/">View Question</a><br>
     <a href="/vote/">Do Vote</a><br>
     <a href="/results/">Show result</a><br>
-    <a href="/result/<str:code>/">Show Code Based result</a>
+    <h2>Filter based URLs:</h2>
+    <a href="/questions/">Get required Question</a><br>
+    <a href="/choice/">Get required Choice</a><br>
+    <a href="/voters/">Get voters history</a><br>
+
     """
     return HttpResponse(response_data)
 
@@ -31,14 +36,14 @@ class QuestionList(APIView):
     """
     List of all question
     """
-
     serializer_class = QuestionSerializer
     permission_classes=[IsAdminOrReadOnly]
 
     def get(self,request):
+
         questions = Question.objects.all()
         serializer = QuestionSerializer(questions,many=True)
-        return Response(serializer.data)
+        return Response(serializer.data)   
 
 
 class QuestionDetail(APIView):
@@ -166,6 +171,7 @@ class ResultsView(APIView):
         serializer = QuestionSerializer(questions,many=True)
         return Response(serializer.data)
 
+'''
 class CodeBasedResultView(APIView):
 
     """
@@ -180,5 +186,46 @@ class CodeBasedResultView(APIView):
         
         choices=unique_code.choice_set.all().order_by("votes")
         serializer = ChoiceSerializer(choices,many=True)
+        return Response(serializer.data)
+
+
+class QuestionIdAPIView(APIView):
+    def get(self, request):
+        question_id = request.query_params.get('question')
+        queryset = Choice.objects.all()
+        if question_id:
+            queryset = queryset.filter(question__id=question_id)
+        serializer = ChoiceSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+'''
+
+
+class QuestionFilter(APIView):
+    def get(self,request):
+        question_text = request.query_params.get("question_text")
+        queryset = Question.objects.all()
+        if question_text:
+            queryset=queryset.filter(question_text__icontains=question_text)
+        serializer = QuestionSerializer(queryset,many=True)
+        return Response(serializer.data)
+    
+class ChoiceFilter(APIView):
+    def get(self,request):
+        choice = request.query_params.get("choice_text")
+        queryset = Choice.objects.all()
+        if choice:
+            queryset=queryset.filter(choice_text__icontains=choice)
+        serializer = ChoiceSerializer(queryset,many=True)
+        return Response (serializer.data)
+
+class VoteFilter(APIView):
+    def get(self,request):
+        username = request.query_params.get("username")
+        queryset = Vote.objects.all()
+
+        if username:
+            queryset=queryset.filter(user__username=username)        #     queryset=queryset.filter(choice__choice_text=choice)
+        serializer = VoteSerializer(queryset,many=True)
         return Response(serializer.data)
 
