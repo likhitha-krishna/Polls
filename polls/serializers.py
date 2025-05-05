@@ -49,3 +49,4 @@ class VoteSerializer(serializers.ModelSerializer):
         question = obj.choice.question
         total_votes = Vote.objects.filter(choice__question=question).count()
         return total_votes
+

@@ -12,7 +12,7 @@ from .permissions import IsAdminOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAdminUser
 from rest_framework.pagination import LimitOffsetPagination
-
+from django.core.mail import send_mail
 
 def home(request):
     response_data = """
@@ -168,6 +168,29 @@ class VoteAPIView(APIView):
         choice.save()
 
         question_text = choice.question.question_text
+
+        print("Sending email to:",user.email)
+
+        #send tokens via email
+        try:
+            send_mail(
+                subject="Thanks for Voting in Polls App - Vote Successfull.",
+                message= f"""
+                Hi {user.username},
+                Thanks for Voting in Polls App!
+
+                You can check your vote here:
+                
+                question_text: {question_text}
+                choice_text : {choice_text}
+                """,
+                from_email= "likhitha0622@gmail.com",
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except:
+                return Response("Error sending email", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         return Response({
         
             "question_text": question_text,
