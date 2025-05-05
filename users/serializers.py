@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
+
+
+# Define the validator
+username_validator = RegexValidator(
+    regex="^[a-zA-Z _]+$",
+    message="Username can only contain letters,spaces and underscore."
+)
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(validators=[username_validator])
     class Meta :
         model = User
         fields = ["username","email","password"]
@@ -32,4 +41,5 @@ class UserSerializer(serializers.ModelSerializer):
             )
             return user
             
+        
             
