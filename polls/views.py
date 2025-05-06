@@ -157,8 +157,9 @@ class VoteAPIView(APIView):
 
         # Check if the user has already voted for this choice
         user = request.user  # Get the authenticated user
-        if Vote.objects.filter(user=user, choice=choice).exists():
-            return Response({"error": "You have already voted for this choice."}, status=status.HTTP_400_BAD_REQUEST)
+        question = choice.question
+        if Vote.objects.filter(user=user, choice__question=question).exists():
+            return Response({"error": "You have already voted for this question."}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create a new Vote instance
         vote = Vote.objects.create(user=user, choice=choice)

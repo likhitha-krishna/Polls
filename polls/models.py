@@ -51,4 +51,4 @@ class Vote(models.Model):
     voted_at = models.DateTimeField(auto_now_add=True)  #current time
 
 class Meta:
-    unique_together = ("user","choice")        
+    unique_together = ("user","question")        
